@@ -396,10 +396,20 @@ static HRESULT DSShare_Create(REFIID guid, DeviceShare **out)
         share->sources.maxsw_alloc = share->sources.maxhw_alloc - MAX_HWBUFFERS/2;
         share->sources.maxhw_alloc = MAX_HWBUFFERS/2;
     }
-    else
+    else if(share->sources.maxhw_alloc > MAX_HWBUFFERS/4)
     {
         share->sources.maxsw_alloc = share->sources.maxhw_alloc - MAX_HWBUFFERS/4;
         share->sources.maxhw_alloc = MAX_HWBUFFERS/4;
+    }
+    else if(share->sources.maxhw_alloc > MAX_HWBUFFERS/8)
+    {
+        share->sources.maxsw_alloc = share->sources.maxhw_alloc - MAX_HWBUFFERS/8;
+        share->sources.maxhw_alloc = MAX_HWBUFFERS/8;
+    }
+    else
+    {
+        share->sources.maxsw_alloc = share->sources.maxhw_alloc - MAX_HWBUFFERS/16;
+        share->sources.maxhw_alloc = MAX_HWBUFFERS/16;
     }
     share->sources.availhw_num = share->sources.maxhw_alloc;
     share->sources.availsw_num = share->sources.maxsw_alloc;
@@ -673,8 +683,8 @@ static HRESULT WINAPI DS8_CreateSoundBuffer(IDirectSound8 *iface, LPCDSBUFFERDES
         {
             if(!IsEqualGUID(&desc->guid3DAlgorithm, &GUID_NULL))
             {
-                WARN("Invalid 3D algorithm GUID specified for non-3D buffer: %s -- but proceeding anyway!\n", debugstr_guid(&desc->guid3DAlgorithm));
-                //return DSERR_INVALIDPARAM; // Keep going! This must be permitted for the music in Guild Wars 1 to work
+                /* Not fatal. Some apps pass unknown values here. */
+                WARN("Unknown 3D algorithm GUID specified for non-3D buffer: %s\n", debugstr_guid(&desc->guid3DAlgorithm));
             }
         }
         else

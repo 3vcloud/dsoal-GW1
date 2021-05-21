@@ -473,9 +473,9 @@ enum {
 /* Maximum number of emulated hardware buffers. May be less depending on source
  * availability.
  */
-#define MAX_HWBUFFERS 256
+#define MAX_HWBUFFERS 1024
 
-#define MAX_SOURCES 512
+#define MAX_SOURCES 2048
 typedef struct SourceCollection {
     DWORD maxhw_alloc, availhw_num;
     DWORD maxsw_alloc, availsw_num;
@@ -610,6 +610,7 @@ struct DSBuffer {
     BOOL isplaying : 1;
     BOOL islooping : 1;
     BOOL bufferlost : 1;
+    BOOL isdeferredswbuffer : 1;
 
     /* Must be 0 (deferred, not yet placed), DSBSTATUS_LOCSOFTWARE, or
      * DSBSTATUS_LOCHARDWARE.

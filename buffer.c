@@ -863,6 +863,7 @@ static HRESULT DSBuffer_SetLoc(DSBuffer *buf, DWORD loc_status)
     }
 
     buf->loc_status = loc_status;
+    if (buf->isdeferredswbuffer) buf->isdeferredswbuffer = FALSE;
     return DS_OK;
 }
 
@@ -1288,6 +1289,23 @@ HRESULT WINAPI DSBuffer_Initialize(IDirectSoundBuffer8 *iface, IDirectSound *ds,
     This->filter_mBLimit = prim->filter_mBLimit;
 
     hr = DS_OK;
+    // Guild Wars explicitly requests a LOT of software buffers.
+    // And it never seems to *do* anything with them.
+    // I speculate it's just using them store sound data for faster access the next time it's needed.
+    // By doing this, GW quickly burns through DSOAL's supply of software sources. 
+    // So we're only going to assign sources here for (virtual) hardware buffers.
+    // Software buffers can get a source later if they actually need it. (Which never seems to happen.)
+    if(!(data->dsbflags&DSBCAPS_LOCDEFER)){
+        if(data->dsbflags&DSBCAPS_LOCHARDWARE){
+            hr = DSBuffer_SetLoc(This, DSBSTATUS_LOCHARDWARE);
+        }
+        else if (data->dsbflags&DSBCAPS_LOCSOFTWARE){
+            This->isdeferredswbuffer = TRUE;
+        }
+    }
+    
+    
+    /*
     if(!(data->dsbflags&DSBCAPS_LOCDEFER))
     {
         DWORD loc = 0;
@@ -1295,6 +1313,7 @@ HRESULT WINAPI DSBuffer_Initialize(IDirectSoundBuffer8 *iface, IDirectSound *ds,
         else if((data->dsbflags&DSBCAPS_LOCSOFTWARE)) loc = DSBSTATUS_LOCSOFTWARE;
         hr = DSBuffer_SetLoc(This, loc);
     }
+    */
 out:
     This->init_done = SUCCEEDED(hr);
 
@@ -1372,7 +1391,7 @@ static HRESULT WINAPI DSBuffer_Play(IDirectSoundBuffer8 *iface, DWORD res1, DWOR
     HRESULT hr;
 
     TRACE("(%p)->(%lu, %lu, %lu)\n", iface, res1, prio, flags);
-
+    
     EnterCriticalSection(&This->share->crst);
     setALContext(This->ctx);
 
@@ -1381,6 +1400,23 @@ static HRESULT WINAPI DSBuffer_Play(IDirectSoundBuffer8 *iface, DWORD res1, DWOR
     {
         WARN("Buffer %p lost\n", This);
         goto out;
+    }
+    
+    // Software buffers may need to be assigned a source now,
+    // since they weren't assigned one at initialization due to our Guild-Wars-specific hack.
+    if (!(This->source) && This->isdeferredswbuffer){
+        WARN("Assigning a source for software buffer that was previously deferred as per Guild Wars hack (%p).", This);
+        hr = DSERR_INVALIDPARAM;
+        if((flags&(DSBPLAY_LOCSOFTWARE|DSBPLAY_LOCHARDWARE)) == (DSBPLAY_LOCSOFTWARE|DSBPLAY_LOCHARDWARE)){
+            WARN("Both hardware and software specified\n");
+            goto out;
+        }
+        // (we don't need to check if it's already playing since it has no source to play it)
+        DWORD loc = 0;
+        if((flags&DSBPLAY_LOCHARDWARE)) loc = DSBSTATUS_LOCHARDWARE;
+        else loc = DSBSTATUS_LOCSOFTWARE;
+        hr = DSBuffer_SetLoc(This, loc);
+        if(FAILED(hr)) goto out;
     }
 
     data = This->buffer;
@@ -1858,6 +1894,23 @@ static HRESULT WINAPI DSBuffer_AcquireResources(IDirectSoundBuffer8 *iface, DWOR
     EnterCriticalSection(&This->share->crst);
     setALContext(This->ctx);
 
+    // Software buffers may need to be assigned a source now,
+    // since they weren't assigned one at initialization due to our Guild-Wars-specific hack.
+    if (!(This->source) && This->isdeferredswbuffer){
+        WARN("Assigning a source for software buffer that was previously deferred as per Guild Wars hack (%p).", This);
+        hr = DSERR_INVALIDPARAM;
+        if((flags&(DSBPLAY_LOCSOFTWARE|DSBPLAY_LOCHARDWARE)) == (DSBPLAY_LOCSOFTWARE|DSBPLAY_LOCHARDWARE)){
+            WARN("Both hardware and software specified\n");
+            goto out;
+        }
+        // (we don't need to check if it's already playing since it has no source to play it)
+        DWORD loc = 0;
+        if((flags&DSBPLAY_LOCHARDWARE)) loc = DSBSTATUS_LOCHARDWARE;
+        else loc = DSBSTATUS_LOCSOFTWARE;
+        hr = DSBuffer_SetLoc(This, loc);
+        if(FAILED(hr)) goto out;
+    }
+    
     hr = DS_OK;
     if((This->buffer->dsbflags&DSBCAPS_LOCDEFER))
     {
