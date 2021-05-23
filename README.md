@@ -2,6 +2,9 @@
 
 A fork of DSOAL that works with Guild Wars 1.
 
+Consult DSOAL-GW1_readme.txt or DSOAL-GW1_readme.odt for installation
+instructions and further details.
+
 # DSOAL
 
 This project is for a DirectSound DLL replacement. It implements the
