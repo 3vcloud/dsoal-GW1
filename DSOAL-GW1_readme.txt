@@ -49,9 +49,13 @@ Installation:
      resides.
 (4) Copy the hrtf_defs and presets folders to
      “C:\users\<your username>\Application Data\openal\”.
+     (On newer version of Windows, "Application Data" has been replaced by
+     AppData\Roaming. Use that instead.)
 (5) Create the directory
      “C:\users\<your username>\Application Data\openal\hrtf” and extract all of
-     the .mhr files from HRTF_OAL_1.19.0.zip into that directory.
+     the .mhr files from HRTF_OAL_1.19.0.zip into that directory. (On newer
+     version of Windows, "Application Data" has been replaced by
+     AppData\Roaming. Use that instead.)
 (6) Make the following edits to alsoft.ini:
     * (Note: Lines beginning with a # symbol are comments/examples that are
        ignored. If you want a setting to take effect, make sure there’s no #
@@ -148,6 +152,7 @@ generally superior.
    card.
 * Wine Staging’s EAX emulation only implements features up through EAX 2.0.
 * IndirectSound implements DS3D, but not EAX.
+* Other options don’t offer ambisonics or HRTF.
 
 
 Using DSOAL-GW1 for Other Games:
