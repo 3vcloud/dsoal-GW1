@@ -920,3 +920,5 @@ extern const WCHAR aldriver_name[];
 #endif
 
 HRESULT WINAPI DSOAL_GetDeviceID(LPCGUID pGuidSrc, LPGUID pGuidDest);
+
+extern float RolloffFudgeFactor;

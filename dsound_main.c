@@ -58,6 +58,7 @@
 int LogLevel = 1;
 FILE *LogFile;
 
+float RolloffFudgeFactor = 1.0;
 
 typedef struct DeviceList {
     GUID *Guids;
@@ -1386,6 +1387,12 @@ DECLSPEC_EXPORT BOOL WINAPI DllMain(HINSTANCE hInstDLL, DWORD fdwReason, LPVOID 
             else LogFile = f;
         }
 
+        const char* str;
+        str = getenv("DSOAL_ROLLOFF_FUDGEFACTOR");
+        if(str && *str){
+            RolloffFudgeFactor = strtof(str, NULL);
+        }
+        
         if(!load_libopenal())
             return FALSE;
         TlsThreadPtr = TlsAlloc();

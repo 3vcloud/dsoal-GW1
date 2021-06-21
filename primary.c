@@ -1560,6 +1560,15 @@ static HRESULT WINAPI DSPrimary3D_SetRolloffFactor(IDirectSound3DListener *iface
 {
     DSPrimary *This = impl_from_IDirectSound3DListener(iface);
 
+    WARN("GW-specific hack. Fudging RolloffFactor from %f to %f\n", factor, factor * RolloffFudgeFactor);
+    factor *= RolloffFudgeFactor;
+    if (factor < DS3D_MINROLLOFFFACTOR){
+        factor = DS3D_MINROLLOFFFACTOR;
+    }
+    if (factor > DS3D_MAXROLLOFFFACTOR){
+        factor = DS3D_MAXROLLOFFFACTOR;
+    }
+    
     TRACE("(%p)->(%f, %lu)\n", iface, factor, apply);
 
     if(factor < DS3D_MINROLLOFFFACTOR ||
