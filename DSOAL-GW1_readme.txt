@@ -114,7 +114,20 @@ HRTF Setup (recommended for headphones):
     * Set “default.hrtf” to the name of your chosen preset, minus the “.mhr”.
        (For example: “default-hrtf = irc_1007_44100”)
 
-
+Configuring Adjustable Rolloff:
+-------------------------------
+As of version r420+GW1_rev1, DSOAL-GW1 includes a fudge factor that makes
+sounds carry farther, so their diminution with distance better accords with
+perceived in-game distance. This departs from the authentic “GW sound as
+originally intended” experience, but most listeners consider it a large
+improvement. If you don’t like the default, you can change the fudge factor by
+setting the environment variable DSOAL_ROLLOFF_FUDGEFACTOR to any floating
+point value between 0 and 1.0. The smaller you set this value, the farther
+sounds will carry. A setting of 1.0 makes no change to the rolloff strength as
+set by GW, and thus gives the authentic experience. A setting a 0 totally
+disables diminution of sound with distance (which sounds terrible and is not
+recommended). The default setting is one-third (0.333…).
+       
 Troubleshooting:
 ----------------
 Set the following environment variables:

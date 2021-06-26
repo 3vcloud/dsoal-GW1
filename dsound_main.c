@@ -58,7 +58,7 @@
 int LogLevel = 1;
 FILE *LogFile;
 
-float RolloffFudgeFactor = 1.0;
+float RolloffFudgeFactor = 1.0f / 3.0f;
 
 typedef struct DeviceList {
     GUID *Guids;
