@@ -179,5 +179,8 @@ your log file is full of errors that say, “DSBuffer_SetLoc Out of software
 sources.” If you try DSOAL-GW1 and your log file is full of warnings that say,
 “Assigning a source for software buffer that was previously deferred as per
 Guild Wars hack,” then DSOAL-GW1 is probably not suitable for that game.
+Additionally, the default rolloff fudge factor is probably not suitable for
+anything besides Guild Wars and would likely need to be changed to 1.0 via the
+environment variable.
 
 - Chthon
