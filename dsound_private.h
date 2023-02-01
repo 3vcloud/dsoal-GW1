@@ -597,6 +597,7 @@ struct DSBuffer {
     BOOL isplaying : 1;
     BOOL islooping : 1;
     BOOL bufferlost : 1;
+    BOOL isdeferredswbuffer : 1;
 
     /* Must be 0 (deferred, not yet placed), DSBSTATUS_LOCSOFTWARE, or
      * DSBSTATUS_LOCHARDWARE.
@@ -832,3 +833,5 @@ extern const WCHAR aldriver_name[];
 #endif
 
 HRESULT WINAPI DSOAL_GetDeviceID(LPCGUID pGuidSrc, LPGUID pGuidDest);
+
+extern float RolloffFudgeFactor;
